@@ -12,32 +12,52 @@ namespace FedyaMath
         public MathExpression Parser(string input)
         {
             List<object> objects = new List<object>();
-            uint bracketCount = 0;
+            object lastObj = null;
+            int bracketCount = 0;
+            char lastChar = ' ';
+            bool wasPoint = false;
+            bool wasMinus = false;
+            double d = 0;
             foreach (var ch in input)
             {
                 if (ch == ' ')
                 {
                     //nothing;
+                    continue;
+                }
+                else if (Char.IsDigit(ch))
+                {
+                    if ((lastObj != null) && !(lastObj is Operator))
+                    {
+                        throw new InvalidSyntaxException();
+                    }
+                }
+                else if (ch == '.' || ch == ',')
+                {
+                    if (!Char.IsDigit(lastChar))
+                    {
+                        throw new InvalidSyntaxException();
+                    }
                 }
                 else if (ch == '(')
                 {
+                    if (lastObj is Unit)
+                    {
+                        objects.Add(new Operator("*",bracketCount, lastObj));
+                    }
                     bracketCount++;
                 }
                 else if (ch == ')')
                 {
+                    if (lastObj is Operator)
+                    {
+                        throw new InvalidSyntaxException();
+                    }
                     if (bracketCount == 0)
                     {
                         throw new BracketOverflowException();
                     }
                     bracketCount--;
-                }
-                else if (Char.IsDigit(ch))
-                {
-
-                }
-                else if (ch == '.' || ch == ',')
-                {
-
                 }
                 else if (Char.IsLetter(ch))
                 {
@@ -45,36 +65,53 @@ namespace FedyaMath
                 }
                 else if (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '^')
                 {
-                    objects.Add(new Operator(ch.ToString(),(int)bracketCount));
-                }               
+                    objects.Add(new Operator(ch.ToString(),bracketCount, lastObj));
+                }
+                else
+                {
+                    throw new InvalidSyntaxException();
+                }
+                lastObj = objects.Last();
+                lastChar = ch;
+            }
+            if (bracketCount != 0)
+            {
+                throw new BracketOverflowException();
             }
         }
         private class Operator
         {
-            public const int bracketPriority = 5;
+            public const int bracketPriority = 8;
             public string operation;
             public int priority;
-            public Operator(string operation,int bracketPriority)
+            public Operator(string operation,int bracketCount, object lastObject)
             {
                 switch (operation)
                 {
                     case "+":
-                        priority = bracketPriority + 1;
+                        priority = bracketPriority * bracketCount + 1;
                         break;
                     case "-":
-                        priority = bracketPriority + 1;
+                        if (lastObject == null || !(lastObject is Unit))
+                        {
+                            priority = bracketPriority * bracketCount + 6;
+                        }
+                        else
+                        {
+                            priority = bracketPriority * bracketCount + 2;
+                        }
                         break;
                     case "*":
-                        priority = bracketPriority + 2;
+                        priority = bracketPriority * bracketCount + 3;
                         break;
                     case "/":
-                        priority = bracketPriority + 2;
+                        priority = bracketPriority * bracketCount + 4;
                         break;
                     case "^":
-                        priority = bracketPriority + 4;
+                        priority = bracketPriority * bracketCount + 7;
                         break;
                     default:
-                        priority = bracketPriority + 3;
+                        priority = bracketPriority * bracketCount + 5;
                         break;
                 }
             }

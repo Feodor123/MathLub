@@ -45,6 +45,7 @@
     <Compile Include="BracketOverflowException.cs" />
     <Compile Include="Fraction.cs" />
     <Compile Include="Function.cs" />
+    <Compile Include="InvalidSyntaxException.cs" />
     <Compile Include="MathExpression.cs" />
     <Compile Include="Multiplication.cs" />
     <Compile Include="Pow.cs" />
