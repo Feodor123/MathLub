@@ -9,17 +9,25 @@ namespace FedyaMath
 {
     class Program
     {
-        public MathExpression Parser(string input)
+        public static MathExpression Parser(string input)
         {
             List<object> objects = new List<object>();
             object lastObj = null;
             int bracketCount = 0;
             char lastChar = ' ';
+            string func = "";
             bool wasPoint = false;
-            bool wasMinus = false;
+            bool wasDouble = false;
+            int i = 1;
             double d = 0;
             foreach (var ch in input)
             {
+                if (!Char.IsLetter(ch) && func.Count() > 0)
+                {
+                    objects.Add(new Operator(func,bracketCount,lastObj));
+                    lastObj = objects.Last();
+                    func = "";
+                }
                 if (ch == ' ')
                 {
                     //nothing;
@@ -31,6 +39,22 @@ namespace FedyaMath
                     {
                         throw new InvalidSyntaxException();
                     }
+                    if (!wasDouble)
+                    {
+                        wasDouble = true;
+                        wasPoint = false;
+                        i = 1;
+                        d = 0;
+                    }
+                    if (wasPoint)
+                    {
+                        d += int.Parse(ch.ToString()) / Math.Pow(10, i);
+                        i++;
+                    }
+                    else
+                    {
+                        d = 10 * d + int.Parse(ch.ToString());
+                    }
                 }
                 else if (ch == '.' || ch == ',')
                 {
@@ -38,46 +62,78 @@ namespace FedyaMath
                     {
                         throw new InvalidSyntaxException();
                     }
-                }
-                else if (ch == '(')
-                {
-                    if (lastObj is Unit)
-                    {
-                        objects.Add(new Operator("*",bracketCount, lastObj));
-                    }
-                    bracketCount++;
-                }
-                else if (ch == ')')
-                {
-                    if (lastObj is Operator)
-                    {
-                        throw new InvalidSyntaxException();
-                    }
-                    if (bracketCount == 0)
-                    {
-                        throw new BracketOverflowException();
-                    }
-                    bracketCount--;
-                }
-                else if (Char.IsLetter(ch))
-                {
-
-                }
-                else if (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '^')
-                {
-                    objects.Add(new Operator(ch.ToString(),bracketCount, lastObj));
+                    wasPoint = true;
                 }
                 else
                 {
-                    throw new InvalidSyntaxException();
+                    if (wasDouble)
+                    {
+                        wasDouble = false;
+                        objects.Add(new Unit(d));
+                        lastObj = objects.Last();
+                    }
+                    if (ch == '(')
+                    {
+                        if (lastObj is Unit)
+                        {
+                            objects.Add(new Operator("*", bracketCount, lastObj));
+                            lastObj = objects.Last();
+                        }
+                        bracketCount++;
+                    }
+                    else if (ch == ')')
+                    {
+                        if (lastObj is Operator)
+                        {
+                            throw new InvalidSyntaxException();
+                        }
+                        if (bracketCount == 0)
+                        {
+                            throw new BracketOverflowException();
+                        }
+                        bracketCount--;
+                    }
+                    else if (Char.IsLetter(ch))
+                    {
+                        if(lastObj is Unit)
+                        {
+                            objects.Add(new Operator("*", bracketCount, lastObj));
+                            lastObj = objects.Last();
+                        }
+                        func += ch;
+                    }
+                    else if (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '^')
+                    {
+                        objects.Add(new Operator(ch.ToString(), bracketCount, lastObj));
+                        lastObj = objects.Last();
+                    }
+                    else
+                    {
+                        throw new InvalidSyntaxException();
+                    }
                 }
-                lastObj = objects.Last();
+                if (objects.Count() != 0)
+                {
+                    lastObj = objects.Last();
+                }
                 lastChar = ch;
+            }
+            if (func.Count() > 0)
+            {
+                objects.Add(new Operator(func, bracketCount, lastObj));
+                lastObj = objects.Last();
+            }
+            if (wasDouble)
+            {
+                wasDouble = false;
+                objects.Add(new Unit(d));
+                lastObj = objects.Last();
             }
             if (bracketCount != 0)
             {
                 throw new BracketOverflowException();
             }
+            return null;
         }
         private class Operator
         {
@@ -86,6 +142,7 @@ namespace FedyaMath
             public int priority;
             public Operator(string operation,int bracketCount, object lastObject)
             {
+                this.operation = operation;
                 switch (operation)
                 {
                     case "+":
@@ -116,28 +173,12 @@ namespace FedyaMath
                 }
             }
         }
-        private class Number
-        {
-            Unit unit;
-            public Number(string str)
-            {
-                double d;
-                double.TryParse(str,out d);
-                if (double.TryParse(str, out d))
-                {
-                    unit = new Unit(str);
-                }
-                else
-                {
-                    unit = new Unit(d);
-                }
-            }
-        }
         static void Main(string[] args)
         {
             string[] input = File.ReadAllLines("input.txt");
             string expression = input[0];
-            string actionType = input[1];
+            //string actionType = input[1];
+            Parser(expression);
         }
     }
 }
