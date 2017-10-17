@@ -18,7 +18,7 @@ namespace FedyaMath
             string func = "";
             bool wasPoint = false;
             bool wasDouble = false;
-            int i = 1;
+            int ii = 1;
             double d = 0;
             foreach (var ch in input)
             {
@@ -43,13 +43,13 @@ namespace FedyaMath
                     {
                         wasDouble = true;
                         wasPoint = false;
-                        i = 1;
+                        ii = 1;
                         d = 0;
                     }
                     if (wasPoint)
                     {
-                        d += int.Parse(ch.ToString()) / Math.Pow(10, i);
-                        i++;
+                        d += int.Parse(ch.ToString()) / Math.Pow(10, ii);
+                        ii++;
                     }
                     else
                     {
@@ -133,6 +133,34 @@ namespace FedyaMath
             {
                 throw new BracketOverflowException();
             }
+            for (int i = 1;i < objects.Count();i++)
+            {
+                if (objects[i] is Unit)
+                {
+                    bracketCount = 0;
+                    if (objects[i - 1] is Unit)
+                    {
+                        throw new InvalidSyntaxException();
+                    }
+                }
+                else
+                {
+                    if (objects[i - 1] is Operator)
+                    {
+                        if (!(((Operator)objects[i]).operation == "-"))
+                        {
+                            throw new InvalidSyntaxException();
+                        }
+                        else
+                        {
+                            bracketCount++;
+                            objects.Insert(i,new Unit(0));
+                            i++;
+                            objects[i] = new Operator("-",((Operator)objects[i]).bracketCount + bracketCount);
+                        }
+                    }
+                }
+            }
             return null;
         }
         private class Operator
@@ -140,8 +168,10 @@ namespace FedyaMath
             public const int bracketPriority = 8;
             public string operation;
             public int priority;
+            public int bracketCount;
             public Operator(string operation,int bracketCount, object lastObject)
             {
+                this.bracketCount = bracketCount;
                 this.operation = operation;
                 switch (operation)
                 {
@@ -157,6 +187,32 @@ namespace FedyaMath
                         {
                             priority = bracketPriority * bracketCount + 2;
                         }
+                        break;
+                    case "*":
+                        priority = bracketPriority * bracketCount + 3;
+                        break;
+                    case "/":
+                        priority = bracketPriority * bracketCount + 4;
+                        break;
+                    case "^":
+                        priority = bracketPriority * bracketCount + 7;
+                        break;
+                    default:
+                        priority = bracketPriority * bracketCount + 5;
+                        break;
+                }
+            }
+            public Operator(string operation, int bracketCount)
+            {
+                this.bracketCount = bracketCount;
+                this.operation = operation;
+                switch (operation)
+                {
+                    case "+":
+                        priority = bracketPriority * bracketCount + 1;
+                        break;
+                    case "-":
+                        priority = bracketPriority * bracketCount + 2;
                         break;
                     case "*":
                         priority = bracketPriority * bracketCount + 3;

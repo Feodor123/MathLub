@@ -4,3 +4,10 @@ C:\Users\Axel\Documents\Visual Studio 2017\Projects\MathLub\FedyaMath\bin\Debug\
 C:\Users\Axel\Documents\Visual Studio 2017\Projects\MathLub\FedyaMath\obj\Debug\FedyaMath.csprojResolveAssemblyReference.cache
 C:\Users\Axel\Documents\Visual Studio 2017\Projects\MathLub\FedyaMath\obj\Debug\FedyaMath.exe
 C:\Users\Axel\Documents\Visual Studio 2017\Projects\MathLub\FedyaMath\obj\Debug\FedyaMath.pdb
+C:\Users\user\Documents\Visual Studio 2017\Projects\MathLub\FedyaMath\bin\Debug\FedyaMath.exe.config
+C:\Users\user\Documents\Visual Studio 2017\Projects\MathLub\FedyaMath\bin\Debug\FedyaMath.exe
+C:\Users\user\Documents\Visual Studio 2017\Projects\MathLub\FedyaMath\bin\Debug\FedyaMath.pdb
+C:\Users\user\Documents\Visual Studio 2017\Projects\MathLub\FedyaMath\obj\Debug\FedyaMath.csprojResolveAssemblyReference.cache
+C:\Users\user\Documents\Visual Studio 2017\Projects\MathLub\FedyaMath\obj\Debug\FedyaMath.csproj.CoreCompileInputs.cache
+C:\Users\user\Documents\Visual Studio 2017\Projects\MathLub\FedyaMath\obj\Debug\FedyaMath.exe
+C:\Users\user\Documents\Visual Studio 2017\Projects\MathLub\FedyaMath\obj\Debug\FedyaMath.pdb
