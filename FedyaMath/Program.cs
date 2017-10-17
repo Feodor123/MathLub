@@ -133,19 +133,19 @@ namespace FedyaMath
             {
                 throw new BracketOverflowException();
             }
-            for (int i = 1;i < objects.Count();i++)
+            for (int i = 0;i < objects.Count();i++)
             {
                 if (objects[i] is Unit)
                 {
                     bracketCount = 0;
-                    if (objects[i - 1] is Unit)
+                    if (i != 0 && objects[i - 1] is Unit)
                     {
                         throw new InvalidSyntaxException();
                     }
                 }
                 else
                 {
-                    if (objects[i - 1] is Operator)
+                    if (i == 0 || objects[i - 1] is Operator)
                     {
                         if (!(((Operator)objects[i]).operation == "-"))
                         {
@@ -161,7 +161,45 @@ namespace FedyaMath
                     }
                 }
             }
-            return null;
+            while(objects.Count() > 1)
+            {
+                ii = 1;
+                Operator best = (Operator)(objects[1]);
+                for (int i = 3;i < objects.Count(); i += 2)
+                {
+                    if (best.priority < ((Operator)objects[i]).priority)
+                    {
+                        best = (Operator)objects[i];
+                        ii = i;
+                    }
+                }
+                MathExpression exp = null;
+                switch (best.operation)//TODO
+                {
+                    case "+":
+                        exp = new Addition((MathExpression)objects[ii - 1], (MathExpression)objects[ii + 1]);
+                        break;
+                    case "-":
+                        exp = new Subtraction((MathExpression)objects[ii - 1], (MathExpression)objects[ii + 1]);
+                        break;
+                    case "*":
+                        exp = new Multiplication((MathExpression)objects[ii - 1], (MathExpression)objects[ii + 1]);
+                        break;
+                    case "/":
+                        exp = new Division((MathExpression)objects[ii - 1], (MathExpression)objects[ii + 1]);
+                        break;
+                    case "^":
+                        exp = new Pow((MathExpression)objects[ii - 1], (MathExpression)objects[ii + 1]);
+                        break;
+                    default:
+                        exp = new Function((MathExpression)objects[ii + 1],best.operation);
+                        break;
+                }
+                objects[ii] = exp;
+                objects.RemoveAt(ii + 1);
+                objects.RemoveAt(ii - 1);
+            }
+            return (MathExpression)objects[0];
         }
         private class Operator
         {
@@ -234,7 +272,8 @@ namespace FedyaMath
             string[] input = File.ReadAllLines("input.txt");
             string expression = input[0];
             //string actionType = input[1];
-            Parser(expression);
+            MathExpression mathExpression = Parser(expression);
+            double d = mathExpression.Calculate();
         }
     }
 }

@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 
 namespace FedyaMath
 {
-    class Multiplication : MathExpression
+    class Addition : MathExpression
     {
         public MathExpression[] expressions;
-        public Multiplication(MathExpression[] expressions)
+        public Addition(MathExpression[] expressions)
         {
             List<MathExpression> exp = new List<MathExpression>();
-            foreach(var m in expressions)
+            foreach (var m in expressions)
             {
-                if (m is Multiplication)
+                if (m is Addition)
                 {
-                    exp.AddRange(((Multiplication)m).expressions);
+                    exp.AddRange(((Addition)m).expressions);
                 }
                 else
                 {
@@ -25,20 +25,20 @@ namespace FedyaMath
             }
             this.expressions = exp.ToArray();
         }
-        public Multiplication(MathExpression expression1, MathExpression expression2)
+        public Addition(MathExpression expression1, MathExpression expression2)
         {
-            List<MathExpression> exp = new List<MathExpression>(); 
-            if (expression1 is Multiplication)
+            List<MathExpression> exp = new List<MathExpression>();
+            if (expression1 is Addition)
             {
-                exp.AddRange(((Multiplication)expression1).expressions);
+                exp.AddRange(((Addition)expression1).expressions);
             }
             else
             {
                 exp.Add(expression1);
             }
-            if (expression2 is Multiplication)
+            if (expression2 is Addition)
             {
-                exp.AddRange(((Multiplication)expression2).expressions);
+                exp.AddRange(((Addition)expression2).expressions);
             }
             else
             {
@@ -50,12 +50,12 @@ namespace FedyaMath
         }
         public override double Calculate()
         {
-            double d = 1;
-            foreach (var mathExpression in expressions)
+            double sum = 0;
+            foreach(var mathExpression in expressions)
             {
-                d *= mathExpression.Calculate();
+                sum += mathExpression.Calculate();
             }
-            return d;
+            return sum;
         }
     }
 }
